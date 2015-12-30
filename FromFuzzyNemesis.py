@@ -14,7 +14,7 @@ rap_exclude_words = ['1','2', '3', 'x2', 'ay', 'hey', 'uhh', '\'mon', 'cuz', 'c'
 # names
 
 basedir = "/Users/Jonny/Downloads/RapGenius/"
-common_words_file = "/Users/Jonny/Documents/Scripting/RapResults/Results"
+common_words_file = "/Users/Jonny/Documents/Scripting/RapResults/common_words"
 results_basedir = "/Users/Jonny/Documents/Scripting/RapResults/"
 stop_names_file = "/Users/Jonny/Documents/Scripting/RapResults/stop_names"
 
@@ -28,7 +28,6 @@ def get_common_words(file):
 # put all the rapper names into a file
 def make_exclude_names():
     f = open(stop_names_file, 'w')
-
     for dir in os.listdir(basedir):
         # dir names are the name of the artist, separated by -, like jay-z
         name1 = re.split('-', dir)

@@ -13,8 +13,8 @@ import csv
 import pickle
 import json
 
-basedir = "/Users/Jonny/Downloads/RapGenius/"
-common_words_file = "/Users/Jonny/Documents/Scripting/RapResults/Results"
+basedir = "/Users/Jonny/Documents/Scripting/RapResults/RapGenius/"
+common_words_file = "/Users/Jonny/Documents/Scripting/RapResults/CommonWords"
 results_basedir = "/Users/Jonny/Documents/Scripting/RapResults/"
 stop_names_file = "/Users/Jonny/Documents/Scripting/RapResults/stop_names"
 artist_names_file = "/Users/Jonny/Documents/Scripting/RapResults/indexes/artist_names"
@@ -23,15 +23,17 @@ indexes_dir = "/Users/Jonny/Documents/Scripting/RapResults/indexes/"
 
 def get_artist_names(dir = basedir):
     f = open(artist_names_file, 'w')
-
+    artistnames = []
     for dir in os.listdir(basedir):
         # dir names are the name of the artist, separated by -, like jay-z
         name1 = re.split('-', dir)
         for n in name1:
+            artistnames.extend(n)
             f.write(n)
             f.write("\n")
             print n
     f.close()
+    return artistnames
 
 
 def make_song_list(artist_name):
@@ -54,6 +56,11 @@ def get_files(dir):
 
 def extract_song_info(dir):
     global filenames
+    #making these global in case the json dump fails we can still use them in-session.
+    global fileid
+    global idfile
+    global artistsongid
+    global songidartist
     get_files(dir)
     #pbar = ProgressBar(widgets=[Percentage(), Bar()], maxval=len(filenames)).start()
     idcount = 0 #to assign unique id to each lyrics file
@@ -64,21 +71,20 @@ def extract_song_info(dir):
     songidartist = dict()
     for i in filenames:
         art = list()
-        print idcount #"progress bar"
+        print idcount + "/" + len(filenames) #"progress bar"
         fileid[i] = idcount
         idfile[idcount] = [i]
         ##open and read file with beautifulsoup
         f = open(i, 'r')
         page = f.read()
-        soup = BeautifulSoup(page)
+        soup = BeautifulSoup(page, "html.parser")
         soup.prettify()
         ##get artists from page and index them
         for artists in soup.find_all(href=re.compile("artist")):
             addart = artists.string
-            if addart:
-                if addart != "Verified Artists":
-                    art[len(art):] = [addart]
-                    songidartist[idcount] = art #index all artists for given song by id
+            if addart != "Verified Artists":
+                art[len(art):] = [addart]
+                songidartist[idcount] = art #index all artists for given song by id
         for i in art:
             if i in artistsongid.keys():
                 existlist = [artistsongid[i]]
@@ -99,7 +105,6 @@ def extract_song_info(dir):
         lyrics = soup.select(".lyrics")
         if lyrics:
             lyrics_string = lyrics[0].text
-            lyrics_string = re.sub("\n", " ", lyrics_string)
             lyrics_string = lyrics_string.encode('ascii',errors='ignore')
             lyrics_file = lyrics_index_dir + str(idcount)
             f = open(lyrics_file, 'w')
@@ -109,16 +114,75 @@ def extract_song_info(dir):
         #pbar.update(idcount)
         idcount = idcount + 1
     #save indices
-    f = open(as_index_file, 'w')
     as_index_file = indexes_dir + "ArtistSongID"
     sa_index_file = indexes_dir + "SongIDArtist"
+    fileid_file = indexes_dir + "FileID"
+    idfile_file = indexes_dir + "IDFile"
+    f = open(as_index_file, 'w')
     json.dump(artistsongid, f)
     f.close()
     f = open(sa_index_file, 'w')
     json.dump(songidartist, f)
     f.close()
+    f = open(fileid_file, 'w')
+    json.dump(fileid, f)
+    f.close()
+    f = open(idfile_file, 'w')
+    json.dump(idfile, f)
+    f.close()
 
+def make_indices(dir):
+    ##just the index part of extract_song_info
+    global filenames
+    #making these global in case the json dump fails we can still use them in-session.
+    global fileid
+    global idfile
+    global artistsongid
+    global songidartist
+    get_files(dir)
+    idcount = 0
+    print len(filenames) #to keep track of function progress... inelegantly...
+    fileid = dict() #two dictionaries to move back and forth between ids and filenames
+    idfile = dict()
+    artistsongid = dict() #"" between artists and ids
+    songidartist = dict()
 
+    for i in filenames:
+        art = list()
+        print(idcount, "/", len(filenames)) #"progress bar"
+        fileid[i] = idcount
+        idfile[idcount] = [i]
+        ##open and read file with beautifulsoup
+        f = open(i, 'r')
+        page = f.read()
+        soup = BeautifulSoup(page, "html.parser")
+        soup.prettify()
+        ##get artists from page and index them
+        for artists in soup.find_all(href=re.compile("artist")):
+            addart = artists.string
+            #addart = addart.encode('ascii',errors='replace')
+            if addart != "Verified Artists":
+                art[len(art):] = [addart]
+                songidartist[idcount] = addart #index all artists for given song by id
+        for i in art:
+            artistsongid[i] = idcount
+        idcount = idcount + 1
+    as_index_file = indexes_dir + "ArtistSongID"
+    sa_index_file = indexes_dir + "SongIDArtist"
+    fileid_file = indexes_dir + "FileID"
+    idfile_file = indexes_dir + "IDFile"
+    f = open(as_index_file, 'w')
+    json.dump(artistsongid, f)
+    f.close()
+    f = open(sa_index_file, 'w')
+    json.dump(songidartist, f)
+    f.close()
+    f = open(fileid_file, 'w')
+    json.dump(fileid, f)
+    f.close()
+    f = open(idfile_file, 'w')
+    json.dump(idfile, f)
+    f.close()
 ##save fileid and idfile dictionaries at the end too
 ##clean lyrics of names
 ##count words, exlude words
