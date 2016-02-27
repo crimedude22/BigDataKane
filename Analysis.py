@@ -1,4 +1,8 @@
 import nltk
+import json
+
+
+corpus_dir = "/Users/Jonny/Dropbox/Scripting/RapResults/Corpi/"
 
 #As of now, pretty much all stolen from http://brandonrose.org/clustering#K-means-clustering
 ##Load info
@@ -57,3 +61,6 @@ plt.tight_layout() #show plot with tight layout
 
 #uncomment below to save figure
 plt.savefig('ward_clusters.png', dpi=200) #save figure as ward_clusters
+
+
+#YOU SHOULD CALCULATE SENTENCE ENTROPY: TRAIN A CLASSIFIER ON A RAPPER AND THEN SEE IN EACH SONG HOW PREDICTABLE THE NEXT LYRICS ARE

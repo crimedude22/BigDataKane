@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/BigDataKane.iml" filepath="$PROJECT_DIR$/.idea/BigDataKane.iml" />
       <module fileurl="file://$USER_HOME$/Documents/Scripting/BigDataKane/.idea/BigDataKane.iml" filepath="$USER_HOME$/Documents/Scripting/BigDataKane/.idea/BigDataKane.iml" />
     </modules>
   </component>

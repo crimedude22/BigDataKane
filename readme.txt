@@ -7,6 +7,7 @@ Requires:
 -SciPy
 -MatPlotLib
 -sklearn
+-nltk 
 -nltk
 
 [12/30/15]
