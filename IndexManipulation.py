@@ -15,10 +15,22 @@ stop_names_file = "/Users/Jonny/Dropbox/Scripting/RapResults/stop_names"
 as_index = "/Users/Jonny/Dropbox/Scripting/RapResults/indexes/ArtistSongID"
 sa_index = "/Users/Jonny/Dropbox/Scripting/RapResults/indexes/SongIDArtist"
 common_words_file = "/Users/Jonny/Dropbox/Scripting/RapResults/common_words"
-asid = json.load(as_index, encoding=object)
-asid = artistsongid
+assid = json.load(as_index, encoding=object)
+assid = artistsongid
+
 
 rap_exclude_words = ['1','2', '3', 'x2', 'ay', 'hey', 'uhh', '\'mon', 'cuz', 'c', '\'mma', 'kanye', 'west', 'yo', 't', 'oh', 'uh', 'ya', 'yea', 'la', 'gon', 'cause', 'em', 'yeah', '50', 'cent']
+
+def get_only_prolific(thresh):
+    proasid = dict()
+    keys = list(assid.keys())
+    for i in keys:
+        xl = list()
+        xl.append(assid[i])
+        if len(xl) > thresh:
+            proasid.update({i:[assid[str(i)]]})
+    return proasid
+
 
 
 def make_artist_corpus(artist):
@@ -37,9 +49,10 @@ def make_clean_artist_corpus(artist):
     #artfiles = (lyrics_dir + r for r in asid[str(artist)])
     #artfiles = [lyrics_dir + str(i) for i in asid[artist]]
     f = open(corpus, 'w')
-    for fname in asid[artist]:
-        fname = lyrics_dir + str(fname)
-        g = open(fname, 'r')
+    artlist = list(asid[str(artist)])
+    for aname in artlist:
+        aname = lyrics_dir + str(aname)
+        g = open(aname, 'r')
         lyrics = g.read()
         lyrics = ' '.join([word for word in text.split() if word not in rap_exclude_words])
         f.write(lyrics)
@@ -63,6 +76,6 @@ def make_all_clean_artist_corpus():
 
 
 
-#still need to clean other rapper's versus from the clean corpus
+#still need to clean other rapper's verses from the clean corpus
 
 
