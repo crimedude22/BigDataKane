@@ -1,72 +1,12 @@
-import nltk
-from nltk.tokenize import RegexpTokenizer
-from nltk.stem.snowball import SnowballStemmer
-import re
-import dill as pickle
-import os
-import numpy as np
-import scipy as sp
-import matplotlib.pyplot as plt
-import matplotlib as mp1
-from mpl_toolkits.mplot3d import Axes3D
-import time
-import pandas as pd
+"""
+Split up old NLTK file. Not organized nor modularized, so definitely shouldn't try to import this one.
+Good god what was I doing.
+"""
 
-basedir = "/Users/Jonny/Documents/RapData/"
-analdir = "/Users/Jonny/Documents/RapData/Analysis/"
-
-#Make list of word corpus
-def wordCorpus(corpus):
-    tokenizer = RegexpTokenizer(r"\w+'\w+|\w+")
-    return tokenizer.tokenize(corpus)
-
-def stringCorpus(corpus):
-    tokenizer = RegexpTokenizer(r"\w+'\w+|\w+")
-    wcorpus = tokenizer.tokenize(corpus)
-    strcorpus = " ".join(map(str,wcorpus))
-    return strcorpus
-
-#Stemmed word copurs
-def stemmedCorpus(corpus):
-    tokenizer = RegexpTokenizer(r"\w+'\w+|\w+")
-    stemmer = SnowballStemmer("english")
-    tokens = tokenizer.tokenize(corpus)
-    stems = list()
-    for i in tokens:
-        try:
-            stems.append(stemmer.stem(i))
-        except:
-            pass
-    return stems
-
-# Make wordCorpus for all artist corpi
-def makeArtistWordCorpi(corpi):
-    # corpi is a dict like the one made by makeAllCorpi
-    for i in corpi.keys():
-        corpi[i] = wordCorpus(corpi[i])
-    return corpi
-
-def makeArtistStemmedCorpi(corpi):
-    for i in corpi.keys():
-        corpi[i] = stemmedCorpus(corpi[i])
-    return corpi
-
-def makeArtistStringCorpi(corpi):
-    for i in corpi.keys():
-        corpi[i] = stringCorpus(corpi[i])
-    return corpi
-
-# Split dict into two lists
-def splitCorpiDict(corpi):
-    artistnames = list()
-    corpitemp = list()
-    for i in corpi.keys():
-        artistnames.append(i)
-        corpitemp.append(corpi[i])
-    return artistnames,corpitemp
-
-##Make term frequency matrix, dist matrix and make 2d array
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.cluster.hierarchy import ward, dendrogram
+
 
 #define vectorizer parameters
 tfidf_vectorizer = TfidfVectorizer(max_df=0.9, max_features=200000,
@@ -75,14 +15,13 @@ tfidf_vectorizer = TfidfVectorizer(max_df=0.9, max_features=200000,
 
 tfidf_matrix = tfidf_vectorizer.fit_transform(corpil) #fit the vectorizer to corpi
 terms = tfidf_vectorizer.get_feature_names() #list of terms used in tf-idf matrix
-print(tfidf_matrix.shape)
+
 
 #cosine similarity
-from sklearn.metrics.pairwise import cosine_similarity
+
 dist = 1 - cosine_similarity(tfidf_matrix)
 
 ##Ward Clustering - Hierarchal dendrogram
-from scipy.cluster.hierarchy import ward, dendrogram
 
 linkage_matrix = ward(dist) #define the linkage_matrix using ward clustering pre-computed distances
 

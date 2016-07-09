@@ -1,30 +1,20 @@
-#############################
-#The main way to use this at this point is to create an artists object with "x = Artists("Artist Name")"
-#Which will get all their albums, songs, lyrics, etc. Then you should probably call the saveArtist() method so you don't lose it
-#Will build some functions to crawl around RG to get artists automatically/recover all saved artist objects automatically...
+"""
+The main way to use this at this point is to create an artists object with "x = Artists("Artist Name")"
+Which will get all their albums, songs, lyrics, etc. Then you should probably call the saveArtist() method so you don't lose it
+Will build some functions to crawl around RG to get artists automatically/recover all saved artist objects automatically...
+"""
 
-
-
-import nltk
-import requests
-from bs4 import BeautifulSoup as bs
-import re
+import copy, os, re, sys, requests
 import dill as pickle
-import os
-import copy
-from django.core.validators import URLValidator
-import sys
+from bs4 import BeautifulSoup as bs
+import settings
 
 #Janky ass encoding workaround. Everyone online says it'll cause problems but fuck it
-reload(sys)
 sys.setdefaultencoding('utf8')
 
-##To do from 4.30: Have to make search function that finds the song links specific to the artist search, right now it is just finding everythign that mentions the artist.
-#5.6: at least partially answered this by just using albums as the means of finding songs
-
-basedir = "/Users/Jonny/Documents/RapData/"
+basedir = settings.BASE_DIR
 global artistdir
-artistdir = "/Users/Jonny/Documents/RapData/Artists/"
+artistdir = settings.BASE_DIR
 
 #Generic attribute holder class
 class attribs:
@@ -355,35 +345,3 @@ def makeAllCorpi(artists):
         corpse = i.corpus
         corpi[i.name] = corpse
     return corpi
-
-
-################
-#Zombie Code
-
-        #Walk through RG pages
-
-    # atEnd = False
-    # listcount = 1
-    # songlinklist = list()
-    # while atEnd == False:
-    #     print('Getting Link List Page %d' %listcount)
-    #     songlisturl = "http://genius.com/search?page=%d&q=%s" % (listcount, str(re.sub(' ','+',ArtistName)))
-    #     songlistpage = requests.get(songlisturl)
-    #     soup = bs(songlistpage.text,"html.parser")
-    #     songlisttemp = soup.find_all(class_="song_link")
-    #     if not songlisttemp:
-    #         break
-    #     else:
-    #         listcount = listcount + 1
-    #     for j in range(len(songlisttemp)):
-    #         songlinklist.append(songlisttemp[j])
-    # self.songlinks = songlinklist
-
-    #Build song objects in artist class def
-        # songs = list()
-        # numsongs = len(songlinklist)
-        # for i in range(len(songlinklist)):
-        #     print("Building Song Object %d of %d" % (i,numsongs))
-        #     songlink = songlinklist[i].get('href')
-        #     songs.append(Song(songlink))
-        # self.songs = songs
