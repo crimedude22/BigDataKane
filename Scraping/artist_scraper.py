@@ -7,14 +7,20 @@ Will build some functions to crawl around RG to get artists automatically/recove
 import copy, os, re, sys, requests
 import dill as pickle
 from bs4 import BeautifulSoup as bs
-import settings
+#import settings
 
 #Janky ass encoding workaround. Everyone online says it'll cause problems but fuck it
+reload(sys)
 sys.setdefaultencoding('utf8')
+
+# Temporary workaround while I don't want to deal with paths and modules and shit
+class settings:
+    BASE_DIR = "/Users/Jonny/Documents/RapData/"
+    ARTIST_DIR = "/Users/Jonny/Documents/RapData/Artists/"
 
 basedir = settings.BASE_DIR
 global artistdir
-artistdir = settings.BASE_DIR
+artistdir = settings.ARTIST_DIR
 
 #Generic attribute holder class
 class attribs:
@@ -91,11 +97,11 @@ class Artist:
     #Make an object that contains all an artist's albums, which then contain all an artist's songs.
     def __init__(self, ArtistName):
         self.corpus = None
+        self.dateCorpus = None
         self.name = ArtistName
 
         #Check if we already have this artist
         if ArtistName in os.listdir(artistdir):
-            print("Found Local Artist File, Loading... \n")
             self.load()
         else:
             #Get the artist page
@@ -106,13 +112,13 @@ class Artist:
             self.url = rgurl
 
             #Build album objects (which contain song objects)
-            albumlinklist = artistsoup.find_all(class_="album_link")
+            albumlinklist = artistsoup.find_all(class_="vertical_album_card")
             self.albums = list()
             numalbums = len(albumlinklist)
             for i in range(len(albumlinklist)):
                 try:
                     print("Building Album Object %d of %d" % (i+1, numalbums))
-                    albumlink = "http://genius.com%s" % str(albumlinklist[i].get('href'))
+                    albumlink = str(albumlinklist[i].get('href'))
                     self.albums.append(Album(albumlink))
                 except:
                     print("Failed to get album {}".format(i+1))
@@ -174,7 +180,7 @@ class Artist:
         # Find artist file and load it
 
         # Adding Verbosity for debugging...
-        print self.name
+        print("Loading {}".format(self.name))
 
         os.chdir(artistdir)
         afile = os.path.abspath("{}_object".format(self.name))
@@ -193,7 +199,7 @@ class Artist:
         self.albumlist = albumlist
 
         for i in self.albumlist:
-            print i
+            # print i
             os.chdir("{}/{}".format(artistdir,self.name))
             # Make attribs for album "object"
             albumd = attribs()
@@ -213,7 +219,7 @@ class Artist:
             songlist = [x.encode("utf-8") for x in gf['songs']]
             os.chdir("{}/{}/Albums/{}/".format(artistdir,self.name,i.encode("utf-8")))
             for j in songlist:
-                print j
+                # print j
                 songfile = os.path.abspath(re.sub('/', ' ', j)).encode("utf-8")
                 h = open(songfile.encode("utf-8"),'rb')
                 hf = pickle.load(h)
@@ -270,6 +276,20 @@ class Artist:
                     self.corpus += str(self.albums[i].songs[j].lyrics)
                 except:
                     pass
+
+    def compileDateCorpus(self):
+        self.dateCorpus = dict()
+        for i in range(len(self.albums)):
+            albumstr = str()
+            for j in range(len(self.albums[i].songs)):
+                try:
+                    albumstr += str(self.albums[i].songs[j].lyrics)
+                except:
+                    pass
+            try:
+                self.dateCorpus.update({int(self.albums[i].year) : albumstr})
+            except:
+                print("Failed to date album {}".format(self.albums[i].title))
 
 class Album:
     def __init__(self, url, *albfile):
@@ -343,5 +363,13 @@ def makeAllCorpi(artists):
     for i in artists:
         eval('i.compileCorpus()')
         corpse = i.corpus
+        corpi[i.name] = corpse
+    return corpi
+
+def makeAllDateCorpi(artists):
+    corpi = dict()
+    for i in artists:
+        eval('i.compileDateCorpus()')
+        corpse = i.dateCorpus
         corpi[i.name] = corpse
     return corpi

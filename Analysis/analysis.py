@@ -6,14 +6,28 @@ Good god what was I doing.
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.cluster.hierarchy import ward, dendrogram
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem.snowball import SnowballStemmer
+import matplotlib.pyplot as plt
 
+def stemmedCorpus(corpus):
+    tokenizer = RegexpTokenizer(r"\w+'\w+|\w+")
+    stemmer = SnowballStemmer("english")
+    tokens = tokenizer.tokenize(corpus)
+    stems = list()
+    for i in tokens:
+        try:
+            stems.append(stemmer.stem(i))
+        except:
+            pass
+    return stems
 
 #define vectorizer parameters
-tfidf_vectorizer = TfidfVectorizer(max_df=0.9, max_features=200000,
+tfidf_vectorizer = TfidfVectorizer(max_df=0.8, max_features=200000,
                                  min_df=0.1, stop_words='english',
                                  use_idf=True, tokenizer=stemmedCorpus, ngram_range=(1,6))
 
-tfidf_matrix = tfidf_vectorizer.fit_transform(corpil) #fit the vectorizer to corpi
+tfidf_matrix = tfidf_vectorizer.fit_transform(corpi) #fit the vectorizer to corpi
 terms = tfidf_vectorizer.get_feature_names() #list of terms used in tf-idf matrix
 
 
@@ -38,7 +52,7 @@ plt.tick_params(\
 plt.tight_layout() #show plot with tight layout
 
 #uncomment below to save figure
-plt.savefig('ward_clusters.png', dpi=200) #save figure as ward_clusters
+plt.savefig('~/Jonny/Documents/RapResults/ward_clusters_temp.png', dpi=200) #save figure as ward_clusters
 
 ##K-Means Clustering
 from sklearn.cluster import KMeans
