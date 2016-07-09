@@ -125,7 +125,7 @@ class Artist:
                     albumlink = "http://genius.com%s" % str(albumlinklist[i].get('href'))
                     self.albums.append(Album(albumlink))
                 except:
-                    print("Failed to get album {}".format(i))
+                    print("Failed to get album {}".format(i+1))
 
     #Because we can't save nested python classes by just picking them,
     #we have to go through each song in each album, save that separately,
