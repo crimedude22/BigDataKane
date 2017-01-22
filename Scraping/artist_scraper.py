@@ -15,8 +15,8 @@ sys.setdefaultencoding('utf8')
 
 # Temporary workaround while I don't want to deal with paths and modules and shit
 class settings:
-    BASE_DIR = "/Users/Jonny/Documents/RapData/"
-    ARTIST_DIR = "/Users/Jonny/Documents/RapData/Artists/"
+    BASE_DIR = "/Users/Jonny/Dropbox/Scripting/RapData/"
+    ARTIST_DIR = "/Users/Jonny/Dropbox/Scripting/RapData/Artists/"
 
 basedir = settings.BASE_DIR
 global artistdir
